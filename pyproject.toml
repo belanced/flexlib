@@ -8,10 +8,10 @@ dynamic = ["version"]
 description = "A collection of flexible utility classes for Python development on POSIX systems"
 readme = "README.md"
 authors = [
-    { name = "Your Name", email = "your.email@example.com" }
+    { name = "Lance Lee", email = "belanced@gmail.com" }
 ]
 maintainers = [
-    { name = "Your Name", email = "your.email@example.com" }
+    { name = "Lance Lee", email = "belanced@gmail.com" }
 ]
 license = { text = "MIT" }
 requires-python = ">=3.8"
