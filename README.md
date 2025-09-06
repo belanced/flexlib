@@ -2,11 +2,28 @@
 
 A collection of flexible utility classes for Python development on POSIX systems (Linux, macOS, and other Unix-like systems).
 
+## Overview
+
+FlexLib provides two main utilities designed to make Python development more productive and intuitive:
+
+- **FlexDict**: A flexible dictionary with dot notation access and automatic nested structure creation
+- **FlexPath**: A POSIX-compatible path library that subclasses `str` for seamless path manipulation
+
 ## Features
 
-### FlexPath - A POSIX-Compatible Path Library
+### FlexDict - Enhanced Dictionary with Dot Notation
 
-FlexPath is a pathlib-like path class that subclasses `str`, providing a familiar and powerful interface for path manipulation on POSIX systems.
+FlexDict enhances Python's built-in `dict` with user-friendly features similar to `addict` or `easydict`.
+
+**Key Features:**
+- **Dict inheritance**: Full compatibility with Python's `dict` interface
+- **Dot notation**: Access and set values using `obj.key` syntax
+- **Auto-creation**: Automatically creates nested structures on assignment
+- **Type conversion**: Converts nested dicts to FlexDict objects automatically
+
+### FlexPath - POSIX-Compatible Path Library
+
+FlexPath provides a powerful interface for path manipulation on Unix-like systems.
 
 **Key Features:**
 - **String subclass**: FlexPath objects can be used anywhere strings are expected
@@ -41,8 +58,29 @@ pip install -e .[dev]
 
 ## Quick Start
 
+### FlexDict Example
+
 ```python
-from flexlib.flexpath import FlexPath
+from flexlib import FlexDict
+
+# Create and use FlexDict
+config = FlexDict()
+config.database.host = "localhost"
+config.database.port = 5432
+config.api.endpoints.users = "/api/v1/users"
+
+# Access using dot notation or brackets
+print(config.database.host)  # localhost
+print(config["database"]["port"])  # 5432
+
+# Equivalent to:
+config2 = FlexDict(database={"host": "localhost", "port": 5432})
+```
+
+### FlexPath Example
+
+```python
+from flexlib import FlexPath
 
 # Create paths
 p = FlexPath("/home/user/documents")
@@ -61,10 +99,71 @@ print(content)  # Hello, World!
 
 ## Usage Examples
 
-### Basic Path Operations
+### FlexDict Examples
+
+#### Configuration Management
 
 ```python
-from flexlib.flexpath import FlexPath
+from flexlib import FlexDict
+
+# Create configuration with nested structure
+config = FlexDict()
+config.database.host = "localhost"
+config.database.port = 5432
+config.database.credentials.username = "admin"
+config.logging.level = "INFO"
+config.logging.handlers.file.enabled = True
+
+# Easy access
+print(f"DB: {config.database.host}:{config.database.port}")
+if config.logging.handlers.file.enabled:
+    print("File logging enabled")
+```
+
+#### API Response Processing
+
+```python
+from flexlib import FlexDict
+import json
+
+# Convert API response to FlexDict
+api_data = '{"user": {"name": "Alice", "profile": {"bio": "Engineer"}}}'
+data = FlexDict(json.loads(api_data))
+
+# Easy nested access
+print(data.user.name)           # Alice
+print(data.user.profile.bio)    # Engineer
+
+# Convert back to regular dict
+regular_dict = data.to_dict()
+```
+
+#### Dynamic Object Creation
+
+```python
+from flexlib import FlexDict
+
+# Both approaches are equivalent:
+# Approach 1: Direct construction
+fd1 = FlexDict(name="John", age=40, abilities={"english": "strong"})
+
+# Approach 2: Dot notation assignment
+fd2 = FlexDict()
+fd2.name = "John"
+fd2.age = 40
+fd2.abilities.english = "strong"
+
+# Both produce identical results
+assert fd1.name == fd2.name
+assert fd1.abilities.english == fd2.abilities.english
+```
+
+### FlexPath Examples
+
+#### Basic Path Operations
+
+```python
+from flexlib import FlexPath
 
 # Path creation and normalization
 p = FlexPath("/home//user/../user/./docs")
@@ -74,229 +173,90 @@ print(p)  # /home/user/docs (automatically normalized)
 print(p.name)        # docs
 print(p.parent)      # /home/user
 print(p.parts)       # ('/', 'home', 'user', 'docs')
-print(p.suffix)      # (empty for directories)
 print(p.stem)        # docs
 ```
 
-### File and Directory Operations
+#### File and Directory Operations
 
 ```python
-from flexlib.flexpath import FlexPath
+from flexlib import FlexPath
 
 # Create directories
 project_dir = FlexPath("/tmp/my_project")
 project_dir.mkdir(parents=True, exist_ok=True)
 
-# Create files
+# Create and read files
 config_file = project_dir / "config.json"
 config_file.write_text('{"debug": true}')
-
-# Read files
 settings = config_file.read_text()
-print(settings)  # {"debug": true}
-
-# File operations
-data_file = project_dir / "data.bin"
-data_file.write_bytes(b"\x00\x01\x02\x03")
-binary_data = data_file.read_bytes()
 
 # Directory iteration
 for item in project_dir.iterdir():
     print(f"Found: {item.name} ({'dir' if item.is_dir() else 'file'})")
 ```
 
-### Path Manipulation
+#### Pattern Matching and Globbing
 
 ```python
-from flexlib.flexpath import FlexPath
+from flexlib import FlexPath
 
-# Working with file extensions
-source = FlexPath("/src/main.py")
-compiled = source.with_suffix(".pyc")
-backup = source.with_name("main_backup.py")
-
-print(source)    # /src/main.py
-print(compiled)  # /src/main.pyc
-print(backup)    # /src/main_backup.py
-
-# Path joining
-base = FlexPath("/home/user")
-documents = base / "Documents" / "Projects"
-print(documents)  # /home/user/Documents/Projects
-
-# Relative paths
-project_root = FlexPath("/home/user/projects/myapp")
-source_file = FlexPath("/home/user/projects/myapp/src/main.py")
-relative = source_file.relative_to(project_root)
-print(relative)  # src/main.py
-```
-
-### Pattern Matching and Globbing
-
-```python
-from flexlib.flexpath import FlexPath
-
-# Glob patterns
 project = FlexPath("/home/user/project")
 
 # Find all Python files
 python_files = list(project.glob("**/*.py"))
-for py_file in python_files:
-    print(py_file)
-
-# Find specific patterns
-test_files = list(project.glob("tests/test_*.py"))
-config_files = list(project.glob("**/config.*"))
 
 # Pattern matching
 path = FlexPath("/home/user/document.pdf")
 print(path.match("*.pdf"))     # True
 print(path.match("**/doc*"))   # True
-print(path.match("*.txt"))     # False
 ```
 
-### Platform-Specific Usage
+## Detailed Documentation
 
-#### Linux Examples
+For comprehensive guides and API references, see the detailed documentation:
+
+- **[FlexDict User Guide](doc/flexdict.md)** - Complete guide to FlexDict usage, features, and best practices
+- **[FlexPath User Guide](doc/flexpath.md)** - Complete guide to FlexPath usage, features, and best practices
+
+## Common Use Cases
+
+### FlexDict is Perfect For:
+- Configuration management
+- API response processing  
+- Dynamic data structures
+- Nested settings and preferences
+- JSON-like data manipulation
+
+### FlexPath is Perfect For:
+- File system operations
+- Path manipulation
+- Directory traversal
+- File I/O operations
+- Cross-platform path handling (POSIX systems)
+
+## Combining FlexDict and FlexPath
 
 ```python
-from flexlib.flexpath import FlexPath
+from flexlib import FlexDict, FlexPath
 
-# Linux-specific paths
-proc_info = FlexPath("/proc/cpuinfo")
-if proc_info.exists():
-    cpu_info = proc_info.read_text()
+# Configuration with paths
+config = FlexDict()
+config.paths.home = FlexPath.home()
+config.paths.config_dir = config.paths.home / ".config" / "myapp"
+config.paths.log_file = config.paths.config_dir / "app.log"
 
-# Home directory on Linux
-home = FlexPath.home()  # typically /home/username
-desktop = home / "Desktop"
-downloads = home / "Downloads"
+# Ensure directories exist
+config.paths.config_dir.mkdir(parents=True, exist_ok=True)
+
+# Write configuration
+config_file = config.paths.config_dir / "settings.json"
+config_data = config.to_dict()  # Convert FlexDict to regular dict
+# Note: Convert FlexPath objects to strings for JSON serialization
+config_data['paths'] = {k: str(v) for k, v in config_data['paths'].items()}
+
+import json
+config_file.write_text(json.dumps(config_data, indent=2))
 ```
-
-#### macOS Examples
-
-```python
-from flexlib.flexpath import FlexPath
-
-# macOS-specific paths
-preferences = FlexPath("~/Library/Preferences").expanduser()
-applications = FlexPath("/Applications")
-
-# macOS home directory
-home = FlexPath.home()  # typically /Users/username
-desktop = home / "Desktop"
-documents = home / "Documents"
-
-# Working with app bundles
-app_bundle = applications / "TextEdit.app"
-if app_bundle.exists():
-    print(f"TextEdit is installed at {app_bundle}")
-```
-
-### Advanced Features
-
-#### Symbolic Links
-
-```python
-from flexlib.flexpath import FlexPath
-
-# Create symbolic links
-source = FlexPath("/path/to/original/file.txt")
-link = FlexPath("/path/to/link.txt")
-
-source.write_text("Original content")
-link.symlink_to(source)
-
-# Work with symbolic links
-print(link.is_symlink())  # True
-print(link.readlink())    # /path/to/original/file.txt
-print(link.read_text())   # Original content
-```
-
-#### File Permissions
-
-```python
-from flexlib.flexpath import FlexPath
-
-script = FlexPath("/tmp/script.sh")
-script.write_text("#!/bin/bash\necho 'Hello, World!'")
-
-# Make executable
-script.chmod(0o755)
-
-# Check permissions
-stat_info = script.stat()
-print(f"File size: {stat_info.st_size} bytes")
-print(f"Owner: {script.owner()}")
-print(f"Group: {script.group()}")
-```
-
-#### URI Conversion
-
-```python
-from flexlib.flexpath import FlexPath
-
-# Convert to file URI
-path = FlexPath("/home/user/document with spaces.txt")
-uri = path.as_uri()
-print(uri)  # file:///home/user/document%20with%20spaces.txt
-```
-
-## API Reference
-
-### Class Methods
-
-- `FlexPath.cwd()` - Get current working directory
-- `FlexPath.home()` - Get user home directory
-
-### Properties
-
-- `parts` - Tuple of path components
-- `name` - Final component (filename)
-- `suffix` - File extension (with dot)
-- `suffixes` - List of all suffixes
-- `stem` - Filename without extension
-- `parent` - Parent directory
-- `parents` - Tuple of ancestor directories
-- `anchor`, `root`, `drive` - Path components (POSIX-specific)
-
-### Path Operations
-
-- `joinpath(*others)` - Join path components
-- `with_name(name)` - Replace filename
-- `with_suffix(suffix)` - Replace file extension
-- `with_stem(stem)` - Replace filename stem
-- `relative_to(*other)` - Get relative path
-- `is_relative_to(*other)` - Check if path is relative to another
-
-### File System Operations
-
-- `exists()` - Check if path exists
-- `is_file()` - Check if path is a file
-- `is_dir()` - Check if path is a directory
-- `is_symlink()` - Check if path is a symbolic link
-- `mkdir(mode, parents, exist_ok)` - Create directory
-- `touch(mode, exist_ok)` - Create empty file
-- `unlink(missing_ok)` - Remove file
-- `rmdir()` - Remove empty directory
-- `iterdir()` - Iterate directory contents
-- `glob(pattern)` - Find paths matching pattern
-- `rglob(pattern)` - Recursive glob
-
-### File I/O
-
-- `read_text(encoding, errors)` - Read file as text
-- `write_text(data, encoding, errors)` - Write text to file
-- `read_bytes()` - Read file as bytes
-- `write_bytes(data)` - Write bytes to file
-- `open(mode, ...)` - Open file
-
-### Metadata
-
-- `stat()` - Get file statistics
-- `owner()` - Get file owner name
-- `group()` - Get file group name
-- `chmod(mode)` - Change file permissions
 
 ## Platform Support
 
@@ -306,12 +266,12 @@ FlexLib is designed for POSIX-compatible systems:
 - **macOS** (all versions)
 - **Unix-like systems** (BSD, Solaris, etc.)
 
-**Note**: Windows is intentionally not supported due to different path semantics.
+**Note**: FlexPath is intentionally not supported on Windows due to different path semantics. FlexDict works on all platforms.
 
 ## Requirements
 
 - Python 3.8 or higher
-- POSIX-compatible operating system
+- POSIX-compatible operating system (for FlexPath)
 
 ## Development
 
@@ -319,13 +279,14 @@ FlexLib is designed for POSIX-compatible systems:
 
 ```bash
 # Run all tests
-python -m unittest tests.test_flexpath -v
-
-# Run with pytest (if installed)
 pytest tests/ -v
 
-# Run platform-specific tests (automatically skipped on other platforms)
-python -m unittest tests.test_flexpath.TestFlexPathPlatform -v
+# Run specific test files
+pytest tests/test_flexdict.py -v
+pytest tests/test_flexpath.py -v
+
+# Run with coverage
+pytest tests/ --cov=flexlib
 ```
 
 ### Contributing
@@ -335,6 +296,16 @@ python -m unittest tests.test_flexpath.TestFlexPathPlatform -v
 3. Add tests for new functionality
 4. Ensure all tests pass
 5. Submit a pull request
+
+## Changelog
+
+### v0.0.2
+- Added FlexDict implementation
+- Enhanced documentation with separate user guides
+- Improved project structure
+
+### v0.0.1
+- Initial release with FlexPath
 
 ## License
 
