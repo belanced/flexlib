@@ -221,8 +221,8 @@ class TestFlexPathProperties(unittest.TestCase):
         """Test parents property."""
         p = FlexPath("/home/user/docs/file.txt")
         parents = p.parents
-        # FlexPath implementation includes the root "/" in parents
-        expected = [FlexPath("/home/user/docs"), FlexPath("/home/user"), FlexPath("/home")]
+        # FlexPath implementation includes the root "/" in parents (matches pathlib behavior)
+        expected = [FlexPath("/home/user/docs"), FlexPath("/home/user"), FlexPath("/home"), FlexPath("/")]
         self.assertEqual(list(parents), expected)
 
 
