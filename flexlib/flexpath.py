@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import io
 import os
+import shutil
 import stat as _stat
 import glob as _glob
 import pwd as _pwd
@@ -363,9 +364,17 @@ class FlexPath(str):
                 if not exist_ok:
                     raise
 
-    def rmdir(self) -> None:
-        """Remove an empty directory."""
-        os.rmdir(str(self))
+    def rmdir(self, recursive: bool = True) -> None:
+        """Remove a directory and optionally all its contents.
+        
+        Args:
+            recursive: If True, removes the directory and all its contents.
+                      If False, removes only an empty directory.
+        """
+        if recursive:
+            shutil.rmtree(str(self))
+        else:
+            os.rmdir(str(self))
 
     def unlink(self, missing_ok: bool = True) -> None:
         """Remove the file or symbolic link. If ``missing_ok`` is True, ignore
