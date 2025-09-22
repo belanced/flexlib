@@ -347,7 +347,7 @@ class FlexPath(str):
         return _stat.S_ISSOCK(mode)
 
     # --- filesystem ops ---------------------------------------------------
-    def mkdir(self, mode: int = 0o777, parents: bool = False, exist_ok: bool = False) -> None:
+    def mkdir(self, mode: int = 0o777, parents: bool = True, exist_ok: bool = True) -> None:
         """Create a directory.
 
         - ``mode``: permission bits (umask applies)
@@ -367,7 +367,7 @@ class FlexPath(str):
         """Remove an empty directory."""
         os.rmdir(str(self))
 
-    def unlink(self, missing_ok: bool = False) -> None:
+    def unlink(self, missing_ok: bool = True) -> None:
         """Remove the file or symbolic link. If ``missing_ok`` is True, ignore
         missing path errors.
         """
