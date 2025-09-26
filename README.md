@@ -16,6 +16,7 @@ FlexLib provides two main utilities designed to make Python development more pro
 FlexDict enhances Python's built-in `dict` with user-friendly features similar to `addict` or `easydict`.
 
 **Key Features:**
+
 - **Dict inheritance**: Full compatibility with Python's `dict` interface
 - **Dot notation**: Access and set values using `obj.key` syntax
 - **Auto-creation**: Automatically creates nested structures on assignment
@@ -26,6 +27,7 @@ FlexDict enhances Python's built-in `dict` with user-friendly features similar t
 FlexPath provides a powerful interface for path manipulation on Unix-like systems.
 
 **Key Features:**
+
 - **String subclass**: FlexPath objects can be used anywhere strings are expected
 - **Immutable**: Operations return new FlexPath instances
 - **Standalone**: No external dependencies, uses only Python standard library
@@ -218,22 +220,6 @@ For comprehensive guides and API references, see the detailed documentation:
 - **[FlexDict User Guide](doc/flexdict.md)** - Complete guide to FlexDict usage, features, and best practices
 - **[FlexPath User Guide](doc/flexpath.md)** - Complete guide to FlexPath usage, features, and best practices
 
-## Common Use Cases
-
-### FlexDict is Perfect For:
-- Configuration management
-- API response processing  
-- Dynamic data structures
-- Nested settings and preferences
-- JSON-like data manipulation
-
-### FlexPath is Perfect For:
-- File system operations
-- Path manipulation
-- Directory traversal
-- File I/O operations
-- Cross-platform path handling (POSIX systems)
-
 ## Combining FlexDict and FlexPath
 
 ```python
@@ -296,16 +282,6 @@ pytest tests/ --cov=flexlib
 3. Add tests for new functionality
 4. Ensure all tests pass
 5. Submit a pull request
-
-## Changelog
-
-### v0.0.2
-- Added FlexDict implementation
-- Enhanced documentation with separate user guides
-- Improved project structure
-
-### v0.0.1
-- Initial release with FlexPath
 
 ## License
 
